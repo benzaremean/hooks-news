@@ -1,25 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+const initialQuery = 'react hooks';
 
 function App() {
+  const [results, setResults] = useState([]);
+  const [query, setQuery] = useState(initialQuery);
+
+  useEffect(() => {
+    getResults();
+  }, [query]);
+
+  const getResults = async () => {
+    const response = await axios.get(
+      `http://hn.algolia.com/api/v1/search?query=${query}`
+    );
+    setResults(response.data.hits);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <input type="text" onChange={event => setQuery(event.target.value)}/>
+      <ul>
+        {results.map(result => (
+          <li key={result.objectID}>
+            <a href={result.url}>{result.title}</a>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
